@@ -1,0 +1,18 @@
+{
+  "main": "index.html",
+  "preload": "preload.js",
+  "logo": "logo.png",
+  "platform": ["win32"],
+  "features": [
+    {
+      "code": "log",
+      "explain": "日志查看",
+      "cmds": [
+        "log",
+        "日志",
+        "查看",
+        "显示"
+      ]
+    }
+  ]
+}
