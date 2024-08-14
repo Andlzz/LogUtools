@@ -1,17 +1,22 @@
 {
   "main": "index.html",
-  "preload": "preload.js",
   "logo": "logo.png",
   "platform": ["win32"],
   "features": [
     {
       "code": "log",
-      "explain": "日志查看",
+      "explain": "日志显示",
+      "mainPush": true,
       "cmds": [
         "log",
         "日志",
         "查看",
-        "显示"
+        "显示",
+        {
+          "type": "over",
+          "label": "日志",
+          "minLength": 1
+        }
       ]
     }
   ]

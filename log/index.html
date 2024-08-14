@@ -9,29 +9,35 @@
     <style>
         .log-display {
             width: 100%;
-            height: 100%;
-            overflow: auto;
+            min-height: 30px; /* 根据需要设置最小高度 */
+            overflow: auto; /* 如果内容超出，显示滚动条 */
             margin: 10px 0;
             font-family: monospace;
             border: 1px solid #ccc;
-            border-radius: 8px; /* 添加圆角边框，半径为8px，可以根据需要调整 */
+            border-radius: 8px;
             background-color: white;
             position: relative;
+            box-sizing: border-box;
         }
 
         .log-display pre {
-            margin: 0; /* 移除默认的外边距 */
-            padding: 10px; /* 添加内边距 */
-            height: 100%; /* 占满高度 */
+            display: block; /* 确保 pre 是块级元素 */
+            margin: 0; /* 移除默认外边距 */
+            /*padding: 10px; !* 添加内边距 *!*/
+            /*white-space: pre-wrap; !* 允许代码换行 *!*/
+            /*word-wrap: break-word; !* 长单词也能换行 *!*/
+            border: none; /* 移除 pre 默认的边框 */
+            border-radius: 0; /* 移除 pre 默认的圆角，与外层容器保持一致 */
+            box-sizing: border-box;
         }
 
         .log-display code {
-            padding: 0; /* 如果你希望内边距只应用到pre上，则这里设置为0 */
-            height: auto; /* 根据内容自动调整高度 */
             display: block;
-            /* 确保 code 块是块级元素 */
+            padding: 0;
+            height: auto; /* 根据内容自动调整高度 */
+            /*white-space: pre-wrap; !* 允许代码换行 *!*/
+            box-sizing: border-box;
         }
-
         .highlight {
             background-color: yellow;
             /* 高亮区域样式 */
@@ -41,46 +47,49 @@
 
 <body>
 
-<div class="log-display" id="logDisplay" contenteditable="true">
-    <pre><code class="language-java"></code></pre>
+<div class="log-display" id="logDisplay">
+    <pre contenteditable="true"><code class="language-java"><br></code></pre>
 </div>
 
 <script src="./model/prism.js"></script>
 <script src="./model/prism-java.js"></script>
 <script>
-    var logDisplay = document.getElementById("logDisplay");
+    let logDisplay = document.getElementById("logDisplay");
+    let code = logDisplay.querySelector("code");
+    let pre = logDisplay.querySelector("pre");
 
-    // 重置代码高亮的函数
-    function resetHighlight() {
-        let code = logDisplay.getElementsByTagName("code")[0];
-        Prism.highlightElement(code);
-    }
+    utools.onPluginEnter(({utoolsCode, type, payload, option}) => {
+        if(type === 'over'){
+            code.textContent = payload
+        }
+        Prism.highlightAll()
+    })
 
     // 监听 paste 事件，以便在粘贴后立即重新高亮
-    logDisplay.addEventListener("paste", function(event) {
+    pre.addEventListener("paste", function(event) {
+        console.log(event)
         // 阻止默认粘贴行为，以便我们可以获取粘贴的文本
         event.preventDefault();
-
-        // 获取粘贴的文本
-        var pastedText = (event.clipboardData || window.clipboardData).getData('text/plain');
-
-        console.log('粘贴内容:'+pastedText)
-
         // 将粘贴的文本设置到 code 元素中
-        let code = logDisplay.getElementsByTagName("code")[0];
-        code.textContent  = pastedText;
+        code.textContent  = (event.clipboardData || window.clipboardData).getData('text/plain');
 
-        console.log(code)
-
-        // 重新高亮代码
-        // resetHighlight();
         Prism.highlightAll()
     });
 
     // 监听失去焦点事件，以便在内容变化后重新高亮
-    logDisplay.addEventListener("blur", function () {
-        // resetHighlight(); // 调用重置高亮的函数
+    pre.addEventListener("blur", function () {
         Prism.highlightAll()
+    });
+
+    // 当内容被清空时，阻止进一步的删除操作
+    pre.addEventListener('keydown', function(event) {
+        if (event.key === 'Backspace' || event.key === 'Delete') {
+            console.log('删除')
+            if (code.textContent.trim() === '') {
+                console.log('没有元素，禁止删除')
+                event.preventDefault();
+            }
+        }
     });
 </script>
 </body>
