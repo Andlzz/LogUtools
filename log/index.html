@@ -1,126 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <title>日志高亮显示与编辑</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css">
-  <style>
-    .log-display {
-      width: 600px;
-      height: 300px;
-      overflow: auto;
-      margin: 10px 0;
-      padding: 5px;
-      font-family: monospace;
-      border: 1px solid #ccc;
-      background-color: white;
-      position: relative;
-      /* 为绝对定位做准备 */
-    }
+    <meta charset="UTF-8" />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css"
+    />
+    <style>
+        .log-display {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            margin: 10px 0;
+            padding: 5px;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            background-color: white;
+            position: relative;
+        }
 
-    .log-display code {
-      display: block;
-      /* 确保 code 块是块级元素 */
-    }
+        .log-display code {
+            display: block;
+            /* 确保 code 块是块级元素 */
+        }
 
-    .highlight {
-      background-color: yellow;
-      /* 高亮区域样式 */
-    }
-  </style>
+        .highlight {
+            background-color: yellow;
+            /* 高亮区域样式 */
+        }
+    </style>
 </head>
 
 <body>
 
-  <h2>日志高亮显示与编辑</h2>
-
-  <div class="log-display" id="logDisplay" contenteditable="true">
+<div class="log-display" id="logDisplay" contenteditable="true">
     <pre><code class="language-javascript">console.log("Hello, world!");</code></pre>
-  </div>
+</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
-  <script>
-  var logDisplay = document.getElementById('logDisplay');
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+<script>
+    var logDisplay = document.getElementById("logDisplay");
 
-// 初始高亮
-Prism.highlightAll();
 
-// 监听 contenteditable 元素的内容变化
-logDisplay.addEventListener('input', function(e) {
-  // 保存当前光标位置
-  var selection = window.getSelection();
-  var range = null;
-  if (selection.rangeCount > 0) {
-    range = selection.getRangeAt(0).cloneRange();
-  }
+    // 初始高亮
+    Prism.highlightAll();
 
-  // 重新高亮代码
-  Prism.highlightAll();
+    // 监听失去焦点事件
+    logDisplay.addEventListener("blur", function () {
 
-  // 恢复光标位置
-  if (range) {
-    selection.removeAllRanges();
-    selection.addRange(range);
-  }
-});
-
-    // 监听 Ctrl+Z 撤回操作
-    logDisplay.addEventListener('keydown', function (e) {
-      if (e.ctrlKey && e.key === 'z') {
-        if (document.queryCommandSupported('undo')) {
-          document.execCommand('undo');
-        }
-      }
+        // 重新高亮代码
+        Prism.highlightAll();
     });
-
-    // 确保光标在高亮区域内
-    function keepCursorInHighlight(element) {
-      var range, selection, code, span, newSpan;
-      if (element.selectionStart !== undefined) {
-        range = document.createRange();
-        selection = window.getSelection();
-        code = element.querySelector('code');
-        if (code) {
-          span = code.querySelector('span');
-          if (span) {
-            // 如果存在 span 并且光标在其外部，则将光标移入 span 内部
-            if (element.selectionStart < span.textContent.length) {
-              range.setStart(span, 0);
-              range.setEnd(span, 0);
-            } else {
-              range.setStart(span, span.textContent.length);
-              range.setEnd(span, span.textContent.length);
-            }
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-        }
-      }
-    }
-
-    // 阻止在非高亮区域输入
-    logDisplay.addEventListener('beforeinput', function (e) {
-      var target = e.target;
-      var range = document.createRange();
-      var selection = window.getSelection();
-      var code = target.querySelector('code');
-      var span = code ? code.querySelector('span') : null;
-
-      if (span) {
-        range.setStart(span, 0);
-        range.setEnd(span, span.textContent.length);
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        // 如果输入发生在高亮区域之外，则阻止默认行为
-        if (selection.anchorOffset >= span.textContent.length || selection.anchorOffset < 0) {
-          e.preventDefault();
-        }
-      }
-    });
-  </script>
-
+</script>
 </body>
-
 </html>
