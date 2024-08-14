@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link
             rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/themes/prism.min.css"
+            href="./model/prism.css"
     />
     <style>
         .log-display {
@@ -12,14 +12,22 @@
             height: 100%;
             overflow: auto;
             margin: 10px 0;
-            padding: 5px;
             font-family: monospace;
             border: 1px solid #ccc;
+            border-radius: 8px; /* 添加圆角边框，半径为8px，可以根据需要调整 */
             background-color: white;
             position: relative;
         }
 
+        .log-display pre {
+            margin: 0; /* 移除默认的外边距 */
+            padding: 10px; /* 添加内边距 */
+            height: 100%; /* 占满高度 */
+        }
+
         .log-display code {
+            padding: 0; /* 如果你希望内边距只应用到pre上，则这里设置为0 */
+            height: auto; /* 根据内容自动调整高度 */
             display: block;
             /* 确保 code 块是块级元素 */
         }
@@ -34,22 +42,45 @@
 <body>
 
 <div class="log-display" id="logDisplay" contenteditable="true">
-    <pre><code class="language-javascript">console.log("Hello, world!");</code></pre>
+    <pre><code class="language-java"></code></pre>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.23.0/prism.min.js"></script>
+<script src="./model/prism.js"></script>
+<script src="./model/prism-java.js"></script>
 <script>
     var logDisplay = document.getElementById("logDisplay");
 
+    // 重置代码高亮的函数
+    function resetHighlight() {
+        let code = logDisplay.getElementsByTagName("code")[0];
+        Prism.highlightElement(code);
+    }
 
-    // 初始高亮
-    Prism.highlightAll();
+    // 监听 paste 事件，以便在粘贴后立即重新高亮
+    logDisplay.addEventListener("paste", function(event) {
+        // 阻止默认粘贴行为，以便我们可以获取粘贴的文本
+        event.preventDefault();
 
-    // 监听失去焦点事件
-    logDisplay.addEventListener("blur", function () {
+        // 获取粘贴的文本
+        var pastedText = (event.clipboardData || window.clipboardData).getData('text/plain');
+
+        console.log('粘贴内容:'+pastedText)
+
+        // 将粘贴的文本设置到 code 元素中
+        let code = logDisplay.getElementsByTagName("code")[0];
+        code.textContent  = pastedText;
+
+        console.log(code)
 
         // 重新高亮代码
-        Prism.highlightAll();
+        // resetHighlight();
+        Prism.highlightAll()
+    });
+
+    // 监听失去焦点事件，以便在内容变化后重新高亮
+    logDisplay.addEventListener("blur", function () {
+        // resetHighlight(); // 调用重置高亮的函数
+        Prism.highlightAll()
     });
 </script>
 </body>
