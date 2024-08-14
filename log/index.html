@@ -67,7 +67,6 @@
 
     // 监听 paste 事件，以便在粘贴后立即重新高亮
     pre.addEventListener("paste", function(event) {
-        console.log(event)
         // 阻止默认粘贴行为，以便我们可以获取粘贴的文本
         event.preventDefault();
         // 将粘贴的文本设置到 code 元素中
@@ -84,9 +83,7 @@
     // 当内容被清空时，阻止进一步的删除操作
     pre.addEventListener('keydown', function(event) {
         if (event.key === 'Backspace' || event.key === 'Delete') {
-            console.log('删除')
             if (code.textContent.trim() === '') {
-                console.log('没有元素，禁止删除')
                 event.preventDefault();
             }
         }
