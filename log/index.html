@@ -6,6 +6,7 @@
             rel="stylesheet"
             href="./model/prism.css"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/line-numbers/prism-line-numbers.css" data-noprefix />
     <style>
         .log-display {
             width: 100%;
@@ -48,11 +49,13 @@
 <body>
 
 <div class="log-display" id="logDisplay">
-    <pre contenteditable="true"><code class="language-java"><br></code></pre>
+    <pre contenteditable="true"><code class="language-java line-numbers"><br></code></pre>
 </div>
 
 <script src="./model/prism.js"></script>
 <script src="./model/prism-java.js"></script>
+<script src="./model/prism-normalize-whitespace.js"></script>
+<script src="./model/prism-line-numbers.js"></script>
 <script>
     let logDisplay = document.getElementById("logDisplay");
     let code = logDisplay.querySelector("code");
