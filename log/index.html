@@ -44,11 +44,83 @@
             background-color: yellow;
             /* 高亮区域样式 */
         }
+
+
+
+        /* 搜索框容器样式 */
+        .search-container {
+            display: none;
+            align-items: center;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 2000;
+            height: 20px;
+        }
+
+        /* 搜索框样式 */
+        .search-box {
+            flex-grow: 1;
+            display: flex; /* 使用Flexbox布局 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            padding: 5px; /* 内边距 */
+            height: 20px;
+        }
+
+        /* 输入框样式 */
+        .search-box input {
+            flex-grow: 1; /* 填充可用空间 */
+            border: none; /* 无边框 */
+            outline: none; /* 点击时无轮廓 */
+            font-size: 16px; /* 字体大小 */
+            padding: 8px 10px; /* 内边距 */
+        }
+
+        /* 搜索按钮样式 */
+        .search-button {
+            width: 20px;
+            height: 20px;
+            background-color: transparent; /* 背景色透明 */
+            border: none; /* 无边框 */
+            cursor: pointer;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 16px 16px;
+            opacity: 0.6; /* 调整图标的透明度 */
+        }
+
+        .down-button{
+            background-image: url('./image/down.png'); /* 搜索图标 */
+        }
+
+        .up-button{
+            background-image: url('./image/up.png'); /* 搜索图标 */
+        }
+
+        /* 鼠标悬浮时改变图标透明度 */
+        .search-button:hover {
+            opacity: 1;
+        }
+
+        /* 隐藏输入框默认的清除按钮 */
+        .search-box input::-webkit-search-cancel-button {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
 
+<!-- 搜索框 -->
+<div class="search-container" id="searchContainer" data-nofind>
+    <div class="search-box">
+        <input type="search" id="searchField" placeholder="搜索...">
+        <button class="search-button down-button" onclick="performDownSearch()" title="搜索"></button>
+        <button class="search-button up-button" onclick="performUpSearch()" title="搜索"></button>
+    </div>
+</div>
 <div class="log-display" id="logDisplay">
     <pre contenteditable="true"><code id="baseCode" class="language-java line-numbers"><br></code></pre>
 </div>
@@ -62,6 +134,7 @@
     let pre = logDisplay.querySelector("pre");
     let code = document.getElementById("baseCode");
 
+    // utools进入初始化高亮
     utools.onPluginEnter(({utoolsCode, type, payload, option}) => {
         if (type === 'over') {
             code.textContent = payload
@@ -71,69 +144,18 @@
 
     // 监听 paste 事件，以便在粘贴后立即重新高亮
     pre.addEventListener("paste", function (event) {
-        // event.preventDefault();
-        // code.textContent = (event.clipboardData || window.clipboardData).getData('text/plain');
-        // console.log(code.textContent)
+        // 延迟时间为 0，会在当前执行栈清空后执行
         setTimeout(function() {
-            // 获取页面上所有的 <code> 元素
-            let codes = document.querySelectorAll('code');
-
-            // 创建一个新的 <code> 元素，用于存储合并后的内容
-            let baseCode = document.getElementById('baseCode');
-
-            // 遍历所有的 <code> 元素，并将它们的文本内容累加
-            let combinedText = '';
-            for (let i = 0; i < codes.length; i++) {
-                // 清理代码文本，只保留 '\n' 作为换行符
-                let cleanedText = codes[i].innerText.replace(/\r?\n/g, '\n');
-                combinedText += cleanedText + '\n'; // 添加换行符以分隔不同 <code> 的内容
-            }
-
-            // 去除最后一个多余的换行符
-            combinedText = combinedText.trim();
-
-            // 将合并后的文本设置为目标 <code> 元素的内容
-            baseCode.textContent = combinedText;
-
-            // 将目标 <code> 元素添加到页面的某个位置，例如一个特定的 pre 元素中
-            let preElement = document.querySelector('pre'); // 假设你已经有一个 pre 元素
-            preElement.textContent = ''; // 清空 pre 元素中的现有内容
-            preElement.appendChild(baseCode);
-            Prism.highlightAll()
-        }, 0); // 延迟时间为 0，会在当前执行栈清空后执行
-        //     Prism.highlightAll()
+            updatePrism()
+        }, 0);
     });
 
     // 监听失去焦点事件，以便在内容变化后重新高亮
     pre.addEventListener("blur", function () {
-        // 获取页面上所有的 <code> 元素
-        let codes = document.querySelectorAll('code');
-
-        // 创建一个新的 <code> 元素，用于存储合并后的内容
-        let baseCode = document.getElementById('baseCode');
-
-        // 遍历所有的 <code> 元素，并将它们的文本内容累加
-        let combinedText = '';
-        for (let i = 0; i < codes.length; i++) {
-            // 清理代码文本，只保留 '\n' 作为换行符
-            let cleanedText = codes[i].innerText.replace(/\r?\n/g, '\n');
-            combinedText += cleanedText + '\n'; // 添加换行符以分隔不同 <code> 的内容
-        }
-
-        // 去除最后一个多余的换行符
-        combinedText = combinedText.trim();
-
-        // 将合并后的文本设置为目标 <code> 元素的内容
-        baseCode.textContent = combinedText;
-
-        // 将目标 <code> 元素添加到页面的某个位置，例如一个特定的 pre 元素中
-        let preElement = document.querySelector('pre'); // 假设你已经有一个 pre 元素
-        preElement.textContent = ''; // 清空 pre 元素中的现有内容
-        preElement.appendChild(baseCode);
-        Prism.highlightAll()
+        updatePrism()
     });
 
-    // 当内容被清空时，阻止进一步的删除操作
+    // 当内容被清空时，阻止进一步删除操作
     pre.addEventListener('keydown', function (event) {
         if (event.key === 'Backspace' || event.key === 'Delete') {
             if (code.textContent.trim() === '') {
@@ -141,6 +163,58 @@
             }
         }
     });
+    function updatePrism() {
+        let codes = document.querySelectorAll('code');
+        let baseCode = document.getElementById('baseCode');
+        let combinedText = '';
+        for (let i = 0; i < codes.length; i++) {
+            let cleanedText = codes[i].innerText.replace(/\r?\n/g, '\n');
+            combinedText += cleanedText + '\n';
+        }
+        combinedText = combinedText.trim();
+        if(combinedText === ''){
+            combinedText = ' '
+        }
+        baseCode.textContent = combinedText;
+        let preElement = document.querySelector('pre');
+        preElement.textContent = '';
+        preElement.appendChild(baseCode);
+        Prism.highlightAll()
+    }
+
+    // 执行搜索的函数
+    function performDownSearch() {
+        let searchField = document.getElementById('searchField');
+        let searchTerm = searchField.value;
+        utools.findInPage(searchTerm)
+    }
+
+    // 执行搜索的函数
+    function performUpSearch() {
+        let searchField = document.getElementById('searchField');
+        let searchTerm = searchField.value;
+        let test = utools.findInPage(searchTerm,{findNext: false})
+        console.log(test)
+    }
+
+    // 监听Ctrl+F事件
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.key.toLowerCase() === 'f') {
+            event.preventDefault(); // 阻止默认的Ctrl+F行为
+            showSearchBox();
+        }
+    });
+
+    // 显示搜索框
+    function showSearchBox() {
+        let searchBox = document.getElementById('searchContainer');
+        if(searchBox.style.display === 'none'){
+            searchBox.style.display = 'block';
+        }else{
+            searchBox.style.display = 'none';
+            utools.stopFindInPage()
+        }
+    }
 </script>
 </body>
 </html>
