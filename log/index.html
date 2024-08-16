@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <link
             rel="stylesheet"
             href="./model/prism.css"
     />
-    <link rel="stylesheet" href="./model/prism-line-numbers.css" data-noprefix />
+    <link rel="stylesheet" href="./model/prism-line-numbers.css" data-noprefix/>
     <style>
         .log-display {
             width: 100%;
@@ -39,6 +39,7 @@
             /*white-space: pre-wrap; !* 允许代码换行 *!*/
             box-sizing: border-box;
         }
+
         .highlight {
             background-color: yellow;
             /* 高亮区域样式 */
@@ -49,7 +50,7 @@
 <body>
 
 <div class="log-display" id="logDisplay">
-    <pre contenteditable="true"><code class="language-java line-numbers"><br></code></pre>
+    <pre contenteditable="true"><code id="baseCode" class="language-java line-numbers"><br></code></pre>
 </div>
 
 <script src="./model/prism.js"></script>
@@ -58,33 +59,82 @@
 <script src="./model/prism-line-numbers.js"></script>
 <script>
     let logDisplay = document.getElementById("logDisplay");
-    let code = logDisplay.querySelector("code");
     let pre = logDisplay.querySelector("pre");
+    let code = document.getElementById("baseCode");
 
     utools.onPluginEnter(({utoolsCode, type, payload, option}) => {
-        if(type === 'over'){
+        if (type === 'over') {
             code.textContent = payload
         }
         Prism.highlightAll()
     })
 
     // 监听 paste 事件，以便在粘贴后立即重新高亮
-    pre.addEventListener("paste", function(event) {
-        // 阻止默认粘贴行为，以便我们可以获取粘贴的文本
-        event.preventDefault();
-        // 将粘贴的文本设置到 code 元素中
-        code.textContent  = (event.clipboardData || window.clipboardData).getData('text/plain');
+    pre.addEventListener("paste", function (event) {
+        // event.preventDefault();
+        // code.textContent = (event.clipboardData || window.clipboardData).getData('text/plain');
+        // console.log(code.textContent)
+        setTimeout(function() {
+            // 获取页面上所有的 <code> 元素
+            let codes = document.querySelectorAll('code');
 
-        Prism.highlightAll()
+            // 创建一个新的 <code> 元素，用于存储合并后的内容
+            let baseCode = document.getElementById('baseCode');
+
+            // 遍历所有的 <code> 元素，并将它们的文本内容累加
+            let combinedText = '';
+            for (let i = 0; i < codes.length; i++) {
+                // 清理代码文本，只保留 '\n' 作为换行符
+                let cleanedText = codes[i].innerText.replace(/\r?\n/g, '\n');
+                combinedText += cleanedText + '\n'; // 添加换行符以分隔不同 <code> 的内容
+            }
+
+            // 去除最后一个多余的换行符
+            combinedText = combinedText.trim();
+
+            // 将合并后的文本设置为目标 <code> 元素的内容
+            baseCode.textContent = combinedText;
+
+            // 将目标 <code> 元素添加到页面的某个位置，例如一个特定的 pre 元素中
+            let preElement = document.querySelector('pre'); // 假设你已经有一个 pre 元素
+            preElement.textContent = ''; // 清空 pre 元素中的现有内容
+            preElement.appendChild(baseCode);
+            Prism.highlightAll()
+        }, 0); // 延迟时间为 0，会在当前执行栈清空后执行
+        //     Prism.highlightAll()
     });
 
     // 监听失去焦点事件，以便在内容变化后重新高亮
     pre.addEventListener("blur", function () {
+        // 获取页面上所有的 <code> 元素
+        let codes = document.querySelectorAll('code');
+
+        // 创建一个新的 <code> 元素，用于存储合并后的内容
+        let baseCode = document.getElementById('baseCode');
+
+        // 遍历所有的 <code> 元素，并将它们的文本内容累加
+        let combinedText = '';
+        for (let i = 0; i < codes.length; i++) {
+            // 清理代码文本，只保留 '\n' 作为换行符
+            let cleanedText = codes[i].innerText.replace(/\r?\n/g, '\n');
+            combinedText += cleanedText + '\n'; // 添加换行符以分隔不同 <code> 的内容
+        }
+
+        // 去除最后一个多余的换行符
+        combinedText = combinedText.trim();
+
+        // 将合并后的文本设置为目标 <code> 元素的内容
+        baseCode.textContent = combinedText;
+
+        // 将目标 <code> 元素添加到页面的某个位置，例如一个特定的 pre 元素中
+        let preElement = document.querySelector('pre'); // 假设你已经有一个 pre 元素
+        preElement.textContent = ''; // 清空 pre 元素中的现有内容
+        preElement.appendChild(baseCode);
         Prism.highlightAll()
     });
 
     // 当内容被清空时，阻止进一步的删除操作
-    pre.addEventListener('keydown', function(event) {
+    pre.addEventListener('keydown', function (event) {
         if (event.key === 'Backspace' || event.key === 'Delete') {
             if (code.textContent.trim() === '') {
                 event.preventDefault();
